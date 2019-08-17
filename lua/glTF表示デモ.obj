@@ -1,0 +1,26 @@
+-- glTF表示デモ.obj
+-- Three.js で glTF ( https://ja.wikipedia.org/wiki/GlTF ) ファイルを表示するカスタムオブジェクト
+-- 動画内などで使う際は CC-BY 4.0 に基づいたライセンス表示を行ってください
+
+-- Model "Littlest Tokyo" is created by Glenatron, published under CC-BY 4.0.
+-- https://sketchfab.com/3d-models/sketchfab-3d-editor-challenge-littlest-tokyo-d5ca33dacf10459a92a8de25fb362a23
+
+--track0:カメラX,-100000,100000,2500,1
+--track1:カメラY,-100000,100000,0,1
+--track2:カメラZ,-100000,100000,5000,1
+--check0:DevTools,0
+
+-- 画面と同じサイズの空の画像を用意する
+obj.setoption("drawtarget", "tempbuffer", obj.screen_w, obj.screen_h)
+obj.load("tempbuffer")
+
+-- ブラウザーを起動し contents フォルダー内の glTF表示デモ.abc を表示用データとして読み込む
+-- glTF表示デモ.abc は表示用コンテンツを zip ファイルに入れて拡張子を変えただけのファイル
+-- ここではカスタムオブジェクトにおける現在の時間とカメラ座標をスラッシュ区切りで渡している
+-- また、カメラ座標は小数点以下の精度を確保するため 1000 で割った数字を渡している
+-- （トラックバーの値をそのまま使うと小数点以下2桁までしかないために動きがカクついて見えてしまうことがある）
+require("browser").execute({
+  abc = "glTF表示デモ.abc",
+  param = string.format("%f/%f/%f/%f", obj.time, obj.track0/1000, obj.track1/1000, obj.track2/1000),
+  dev = obj.check0,
+});

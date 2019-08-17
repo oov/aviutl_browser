@@ -1,0 +1,30 @@
+-- Markdown.anm
+-- Markdown で書かれたテキストを表示するアニメーション効果
+
+-- 拡張編集の GUI 上で入力されたテキストは Shift_JIS の駄目文字への対策が行われるが、
+-- そもそも文字列をダブルクォートで括っていない場合にはゴミになるので除去しておく
+markdown = markdown:gsub("([\128-\160\224-\255]\092)\092","%1")
+
+--track0:幅,1,4000,1600,1
+--track1:高さ,1,4000,900,1
+--track2:文字,1,1600,100,1
+--check0:DevTools,0
+
+-- トラックバーで指定された大きさを元に画像サイズを決める
+-- 設定によるサイズ上限もあるので、それを超えないようにする
+local max_w, max_h = obj.getinfo("image_max")
+local w = math.min(max_w, obj.track0)
+local h = math.min(max_h, obj.track1)
+
+-- 空の画像を用意する
+obj.setoption("drawtarget", "tempbuffer", w, h)
+obj.load("tempbuffer")
+
+-- ブラウザーを起動し contents フォルダー内の Markdown.abc を表示用データとして読み込む
+-- Markdown.abc は表示用コンテンツを zip ファイルに入れて拡張子を変えただけのファイル
+-- ここでは文字サイズとテキストを渡すことによって表示する内容を切り替えている
+require("browser").execute({
+  abc = "Markdown.abc",
+  param = obj.track2 .. "/" .. markdown,
+  dev = obj.check0,
+});

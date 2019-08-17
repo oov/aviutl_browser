@@ -1,0 +1,19 @@
+-- ファイル参照デモ.obj
+-- 参照ボタンで指定したファイルを JavaScript 側で読み込むデモ
+
+--check0:DevTools,0
+--file:
+tonumber(nil)
+
+-- 適当な大きさの画像を用意する
+obj.setoption("drawtarget", "tempbuffer", 400, 80)
+obj.load("tempbuffer")
+
+-- ブラウザーを起動し contents フォルダー内の ファイル参照デモ.abc を表示用データとして読み込む
+-- ファイル参照デモ.abc は表示用コンテンツを zip ファイルに入れて拡張子を変えただけのファイル
+-- 選択されたファイルは file 変数に入っているのでこれを userfile で指定する
+require("browser").execute({
+  abc = "ファイル参照デモ.abc",
+  userfile = file,
+  dev = obj.check0,
+});
