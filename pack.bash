@@ -13,12 +13,14 @@ sed 's/\r$//' lua/Markdown.anm | sed 's/$/\r/' > dist/script/browser/Markdown.an
 sed 's/\r$//' lua/Markdown.exa | sed 's/$/\r/' > dist/script/browser/Markdown.exa
 sed 's/\r$//' lua/SVGアニメ.obj | sed 's/$/\r/' > dist/script/browser/SVGアニメ.obj
 sed 's/\r$//' lua/絵文字.obj | sed 's/$/\r/' > dist/script/browser/絵文字.obj
+sed 's/\r$//' lua/ファイル参照デモ.obj | sed 's/$/\r/' > dist/script/browser/ファイル参照デモ.obj
 
 # copy contents
 cp lua/contents/glTF表示デモ.abc dist/script/browser/contents/
 cp lua/contents/Markdown.abc dist/script/browser/contents/
 cp lua/contents/SVGアニメ.abc dist/script/browser/contents/
 cp lua/contents/絵文字.abc dist/script/browser/contents/
+cp lua/contents/ファイル参照デモ.abc dist/script/browser/contents/
 cp -r lua/contents/絵文字セレクター dist/script/browser/contents/
 
 # copy program
