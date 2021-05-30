@@ -207,3 +207,8 @@ void Assets::GetMime(const CefString& path, CefString& mime) {
 	mime = it->second;
 	return;
 }
+
+void Assets::SetDefaultHeaders(CefResponse::HeaderMap& header_map) {
+	header_map.insert(std::make_pair(L"Cross-Origin-Embedder-Policy", L"require-corp"));
+	header_map.insert(std::make_pair(L"Cross-Origin-Opener-Policy", L"same-origin"));
+}

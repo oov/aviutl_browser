@@ -42,6 +42,7 @@ CefRefPtr<CefResourceHandler> AssetsFromLocalFile::Get(const CefString& path) {
 	GetMime(path, mime);
 	CefResponse::HeaderMap hm;
 	hm.insert(std::make_pair(L"Content-Length", CefString(std::to_wstring(sz.QuadPart))));
+	SetDefaultHeaders(hm);
 	return StreamResourceHandler::CreateFromFile(200, mime, hm, file);
 }
 
@@ -145,5 +146,6 @@ CefRefPtr<CefResourceHandler> AssetsFromZip::Get(const CefString& path) {
 	GetMime(path, mime);
 	CefResponse::HeaderMap hm;
 	hm.insert(std::make_pair(L"Content-Length", CefString(std::to_wstring(content.size()))));
+	SetDefaultHeaders(hm);
 	return StreamResourceHandler::CreateFromString(200, mime, hm, content);
 }

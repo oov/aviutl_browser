@@ -80,6 +80,7 @@ CefRefPtr<CefResourceHandler> Client::GetUserFile() {
 	assets_->GetMime(userfile_, mime);
 	CefResponse::HeaderMap hm;
 	hm.insert(std::make_pair(L"Content-Length", CefString(std::to_wstring(sz.QuadPart))));
+	assets_->SetDefaultHeaders(hm);
 	return StreamResourceHandler::CreateFromFile(200, mime, hm, userfile_);
 }
 

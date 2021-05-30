@@ -20,6 +20,7 @@ protected:
 public:
 	explicit Assets();
 	void GetMime(const CefString& path, CefString& mime);
+	void SetDefaultHeaders(CefResponse::HeaderMap& header_map);
 	CefRefPtr<CefResourceHandler> operator()(const CefString& path);
 	IMPLEMENT_REFCOUNTING(Assets);
 };
