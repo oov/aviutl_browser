@@ -209,18 +209,6 @@ void Client::OnPaint(CefRefPtr<CefBrowser> browser,
 	cv_.notify_all();
 }
 
-class HTMLStreamResourceHandler : public CefStreamResourceHandler
-{
-public:
-	std::vector<char> buf;
-	HTMLStreamResourceHandler(const CefString& mime_type, CefRefPtr<CefStreamReader> stream) : CefStreamResourceHandler(mime_type, stream) {};
-	HTMLStreamResourceHandler(int status_code,
-		const CefString& status_text,
-		const CefString& mime_type,
-		CefResponse::HeaderMap header_map,
-		CefRefPtr<CefStreamReader> stream) : CefStreamResourceHandler(status_code, status_text, mime_type, header_map, stream) {};
-};
-
 CefRefPtr<CefResourceHandler> Client::GetResourceHandler(
 	CefRefPtr<CefBrowser> browser,
 	CefRefPtr<CefFrame> frame,
