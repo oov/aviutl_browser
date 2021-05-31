@@ -82,6 +82,7 @@ CefRefPtr<CefResourceHandler> Client::GetUserFile() {
 	hm.insert(std::make_pair(L"Content-Length", CefString(std::to_wstring(sz.QuadPart))));
 	assets_->SetDefaultHeaders(hm);
 	hm.insert(std::make_pair(L"Content-Security-Policy", L"default-src 'self'"));
+	hm.insert(std::make_pair(L"Cache-Control", L"no-store"));
 	return StreamResourceHandler::CreateFromFile(200, mime, hm, userfile_);
 }
 
