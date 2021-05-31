@@ -25,6 +25,7 @@ obj.load("tempbuffer")
 -- ここでは文字サイズとテキストを渡すことによって表示する内容を切り替えている
 require("browser").execute({
   abc = "Markdown.abc",
+  tabid = "",
   param = obj.track2 .. "/" .. markdown,
   dev = obj.check0,
 });

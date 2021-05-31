@@ -10,10 +10,11 @@
 
 struct client_key {
 	std::wstring path;
+	std::wstring tabid;
 	bool is_dir;
 	bool operator<(const client_key& value) const
 	{
-		return std::tie(path, is_dir) < std::tie(value.path, value.is_dir);
+		return std::tie(path, is_dir, value.tabid) < std::tie(value.path, value.is_dir, value.tabid);
 	}
 };
 
@@ -39,6 +40,7 @@ public:
 	void WaitInitialize();
 	bool RenderAndCapture(
 		const std::wstring& path,
+		const std::wstring& tabid,
 		const bool use_dir,
 		const bool use_devtools,
 		const std::wstring& userfile,

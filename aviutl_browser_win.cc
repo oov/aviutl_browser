@@ -30,7 +30,7 @@ struct header {
 	uint8_t flags;
 	uint16_t path_len;
 	uint16_t userfile_len;
-	uint16_t reserved;
+	uint16_t tabid_len;
 };
 
 inline static BOOL read(HANDLE h, void* buf, DWORD sz)
@@ -94,7 +94,7 @@ static int ipc_worker(CefRefPtr<App> app) {
 
 	{
 		std::string buf;
-		std::wstring path, userfile, win, wout;
+		std::wstring path, userfile, tabid, win, wout;
 		int32_t len(0);
 		while (1) {
 			if (!read(in, &len, sizeof(len))) {
@@ -104,12 +104,23 @@ static int ipc_worker(CefRefPtr<App> app) {
 			if (!read(in, &buf[0], len)) {
 				goto unmap_view;
 			}
-			struct header* h = reinterpret_cast<struct header*>(&buf[0]);
-			from_sjis(&buf[sizeof(struct header)], static_cast<const int>(h->path_len), path);
-			from_sjis(&buf[sizeof(struct header) + h->path_len], static_cast<const int>(h->userfile_len), userfile);
-			from_sjis(&buf[sizeof(struct header) + h->path_len + h->userfile_len], static_cast<const int>(buf.size() - sizeof(struct header) - h->path_len - h->userfile_len), win);
+			size_t pos = 0;
+			struct header* h = reinterpret_cast<struct header*>(&buf[pos]);
+			if (h->version != 2) {
+				OutputDebugString(L"Unsupported header version");
+				goto unmap_view;
+			}
+			pos += sizeof(struct header);
+			from_sjis(&buf[pos], static_cast<const int>(h->path_len), path);
+			pos += h->path_len;
+			from_sjis(&buf[pos], static_cast<const int>(h->userfile_len), userfile);
+			pos += h->userfile_len;
+			from_sjis(&buf[pos], static_cast<const int>(h->tabid_len), tabid);
+			pos += h->tabid_len;
+			from_sjis(&buf[pos], static_cast<const int>(buf.size() - pos), win);
 			const bool r = app->RenderAndCapture(
 				path,
+				tabid,
 				(h->flags & 1) != 0,
 				(h->flags & 2) != 0,
 				userfile,

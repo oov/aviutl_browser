@@ -12,6 +12,7 @@ obj.load("tempbuffer")
 -- ここではカスタムオブジェクトにおける現在の時間を渡すことでアニメーションを実現している
 require("browser").execute({
   abc = "SVGアニメ.abc",
+  tabid = "",
   param = string.format("%f", obj.time),
   dev = obj.check0,
 });

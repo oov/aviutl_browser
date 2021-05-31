@@ -27,6 +27,7 @@ obj.load("tempbuffer")
 -- ここでは絵文字コードを渡すことによって表示する内容を切り替えている
 require("browser").execute({
   abc = "絵文字.abc",
+  tabid = "",
   param = code,
   dev = obj.check0,
 });

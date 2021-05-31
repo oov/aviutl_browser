@@ -21,6 +21,7 @@ obj.load("tempbuffer")
 -- （トラックバーの値をそのまま使うと小数点以下2桁までしかないために動きがカクついて見えてしまうことがある）
 require("browser").execute({
   abc = "glTF表示デモ.abc",
+  tabid = "",
   param = string.format("%f/%f/%f/%f", obj.time, obj.track0/1000, obj.track1/1000, obj.track2/1000),
   dev = obj.check0,
 });

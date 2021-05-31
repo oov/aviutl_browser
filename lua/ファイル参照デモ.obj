@@ -14,6 +14,7 @@ obj.load("tempbuffer")
 -- 選択されたファイルは file 変数に入っているのでこれを userfile で指定する
 require("browser").execute({
   abc = "ファイル参照デモ.abc",
+  tabid = "",
   userfile = file,
   dev = obj.check0,
 });

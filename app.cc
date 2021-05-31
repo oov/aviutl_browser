@@ -20,6 +20,7 @@ void App::WaitInitialize() {
 
 bool App::RenderAndCapture(
     const std::wstring& path,
+    const std::wstring& tabid,
     const bool use_dir,
     const bool use_devtools,
     const std::wstring& userfile,
@@ -28,7 +29,7 @@ bool App::RenderAndCapture(
     void* image, const int width, const int height) {
 	std::lock_guard<std::mutex> lk(mtx_);
     CefRefPtr<Client> c;
-    const auto key = client_key{ path, use_dir };
+    const auto key = client_key{ path, tabid, use_dir };
     const auto it = clients_.find(key);
     if (it != clients_.cend()) {
         c = it->second;
