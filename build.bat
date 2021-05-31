@@ -1,5 +1,5 @@
 @echo off
-set VERSION=0.2
+set VERSION=0.3
 
 rem update version.h
 for /f "usebackq" %%H in (`git rev-parse --short HEAD`) do set COMMITHASH=%%H
