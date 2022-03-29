@@ -2,9 +2,10 @@
 
 #include <string>
 
-#include "include/base/cef_bind.h"
-#include "include/wrapper/cef_helpers.h"
+#include "include/base/cef_callback.h"
+#include "include/base/cef_ref_counted.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_helpers.h"
 
 #include "callback.h"
 
@@ -65,7 +66,7 @@ void App::CloseAllBrowsers() {
         c.second->CloseAllBrowsers(true);
     }
     clients_.clear();
-	CefPostTask(TID_UI, base::Bind(&CefQuitMessageLoop));
+	CefPostTask(TID_UI, base::BindOnce(&CefQuitMessageLoop));
 }
 
 void App::OnContextInitialized() {

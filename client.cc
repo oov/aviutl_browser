@@ -4,11 +4,11 @@
 #include <string>
 #include <chrono>
 
-#include "include/base/cef_bind.h"
-#include "include/wrapper/cef_closure_task.h"
 #include "include/cef_app.h"
 #include "include/views/cef_browser_view.h"
-#include "include/views/cef_window.h"
+#include "include/base/cef_callback.h"
+#include "include/base/cef_ref_counted.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/cef_parser.h"
 
@@ -215,7 +215,7 @@ CefRefPtr<CefResourceHandler> Client::GetResourceHandler(
 	CefRefPtr<CefRequest> request) {
 	CefURLParts u;
 	if (!CefParseURL(request->GetURL(), u)) {
-		return NULL;
+		return nullptr;
 	}
 	if (CefString(&u.scheme) == L"https" && CefString(&u.host) == L"assets.example") {
 		auto path = CefString(&u.path);
@@ -227,7 +227,7 @@ CefRefPtr<CefResourceHandler> Client::GetResourceHandler(
 		}
 		return (*assets_)(path);
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Client::Capture(void* b, const int width, const int height) {
@@ -259,7 +259,7 @@ void Client::Resize(const int width, const int height) {
 	cur_height_ = height;
 	buf_ = nullptr;
 
-	CefPostTask(TID_UI, base::Bind(&CefBrowserHost::WasResized, browser_list_.front()->GetHost()));
+	CefPostTask(TID_UI, base::BindOnce(&CefBrowserHost::WasResized, browser_list_.front()->GetHost()));
 	cv_.wait(lk, [&] {
 		return resized_ == true && capture_state_ == 3;
 	});
@@ -312,7 +312,7 @@ void Client::SetUseDevTools(const bool use_devtools) {
 		return;
 	}
 	if (!CefCurrentlyOn(TID_UI)) {
-		CefPostTask(TID_UI, base::Bind(&Client::SetUseDevTools, this, use_devtools));
+		CefPostTask(TID_UI, base::BindOnce(&Client::SetUseDevTools, this, use_devtools));
 		return;
 	}
 	CefRefPtr<CefBrowser> browser = browser_list_.front();
@@ -410,8 +410,7 @@ bool Client::Render(const std::wstring& inbuf, std::wstring& outbuf, int timeout
 
 void Client::CloseAllBrowsers(bool force_close) {
 	if (!CefCurrentlyOn(TID_UI)) {
-		CefPostTask(TID_UI, base::Bind(&Client::CloseAllBrowsers, this,
-			force_close));
+		CefPostTask(TID_UI, base::BindOnce(&Client::CloseAllBrowsers, this, force_close));
 		return;
 	}
 
