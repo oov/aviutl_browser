@@ -1,4 +1,3 @@
-version.h
-lua/contents/
-dist/
-bin/
+src/version.h
+src/lua/contents
+build
