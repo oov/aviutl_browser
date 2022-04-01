@@ -135,13 +135,10 @@ JavaScript で `AviUtlBrowser.registerRenderer(render)` などとして関数を
 
 ファイルの直下にはフォルダーではなく index.html が来るようにしてください。
 
-## コンパイル環境の準備方法
+## ビルドについて
 
-Visual Studio 2019 で開発しています。
-
-1. http://opensource.spotify.com/cefbuilds/index.html にアクセスして、Windows 64-bit Builds の Minimal Distribution をダウンロード、展開
-2. ルートディレクトリーの `CMakeLists.txt` の最後に `add_subdirectory(aviutl_browser)` を追加
-3. ルートディレクトリーで `git clone https://github.com/oov/aviutl_browser && cd aviutl_browser && build.bat`
+リリース用ファイルは GitHub Actions で自動生成しています。
+ビルド方法や必要になるパッケージなどは [GitHub Actions の設定ファイル](https://github.com/oov/aviutl_browser/blob/main/.github/workflows/releaser.yml) を参照してください。
 
 ## Credits
 
