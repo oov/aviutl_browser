@@ -1,285 +1,191 @@
+# Copyright (c) 2014 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+# OVERVIEW
 #
-# Source files.
+# CMake is a cross-platform open-source build system that can generate project
+# files in many different formats. It can be downloaded from
+# http://www.cmake.org or installed via a platform package manager.
+#
+# CMake-generated project formats that have been tested with this CEF binary
+# distribution include:
+#
+# Linux:      Ninja, GCC 7.5.0+, Unix Makefiles
+# MacOS:      Ninja, Xcode 12.2 to 13.0
+# Windows:    Ninja, Visual Studio 2019+
+#
+# Ninja is a cross-platform open-source tool for running fast builds using
+# pre-installed platform toolchains (GNU, clang, Xcode or MSVC). It can be
+# downloaded from http://martine.github.io/ninja/ or installed via a platform
+# package manager.
+#
+# CMAKE STRUCTURE
+#
+# This CEF binary distribution includes the following CMake files:
+#
+# CMakeLists.txt              Bootstrap that sets up the CMake environment.
+# cmake/*.cmake               CEF configuration files shared by all targets.
+# libcef_dll/CMakeLists.txt   Defines the libcef_dll_wrapper target.
+# tests/*/CMakeLists.txt      Defines the test application target.
+#
+# See the "TODO:" comments below for guidance on how to integrate this CEF
+# binary distribution into a new or existing CMake project.
+#
+# BUILD REQUIREMENTS
+#
+# The below requirements must be met to build this CEF binary distribution.
+#
+# - CMake version 3.19 or newer.
+#
+# - Linux requirements:
+#   Currently supported distributions include Debian 10 (Buster), Ubuntu 18
+#   (Bionic Beaver), and related. Ubuntu 18.04 64-bit with GCC 7.5.0+ is
+#   recommended. Newer versions will likely also work but may not have been
+#   tested.
+#   Required packages include:
+#     build-essential
+#     libgtk3.0-dev     (required by the cefclient target only)
+#
+# - MacOS requirements:
+#   Xcode 12.2 to 13.0 building on MacOS 10.15.4 (Catalina) or newer. Only
+#   64-bit builds are supported. The Xcode command-line tools must also be
+#   installed. Newer Xcode versions may not have been been tested and are not
+#   recommended.
+#
+# - Windows requirements:
+#   Visual Studio 2019 or newer building on Windows 7 or newer. Windows 10
+#   64-bit is recommended. Newer versions will likely also work but may not have
+#   been tested.
+#
+# BUILD EXAMPLES
+#
+# The below commands will generate project files and create a Debug build of all
+# CEF targets using CMake and the platform toolchain.
+#
+# Start by creating and entering the CMake build output directory:
+# > cd path/to/cef_binary_*
+# > mkdir build && cd build
+#
+# To perform a Linux build using a 32-bit CEF binary distribution on a 32-bit
+# Linux platform or a 64-bit CEF binary distribution on a 64-bit Linux platform:
+#   Using Unix Makefiles:
+#     > cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug ..
+#     > make -j4 cefclient cefsimple
+#
+#   Using Ninja:
+#     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefclient cefsimple
+#
+# To perform a MacOS build using a 64-bit CEF binary distribution:
+#   Using the Xcode IDE:
+#     > cmake -G "Xcode" -DPROJECT_ARCH="x86_64" ..
+#     Open build\cef.xcodeproj in Xcode and select Product > Build.
+#
+#   Using Ninja:
+#     > cmake -G "Ninja" -DPROJECT_ARCH="x86_64" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefclient cefsimple
+#
+# To perform a MacOS build using an ARM64 CEF binary distribution:
+#   Using the Xcode IDE:
+#     > cmake -G "Xcode" -DPROJECT_ARCH="arm64" ..
+#     Open build\cef.xcodeproj in Xcode and select Product > Build.
+#
+#   Using Ninja:
+#     > cmake -G "Ninja" -DPROJECT_ARCH="arm64" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefclient cefsimple
+#
+# To perform a Windows build using a 32-bit CEF binary distribution:
+#   Using the Visual Studio 2019 IDE:
+#     > cmake -G "Visual Studio 16" -A Win32 ..
+#     Open build\cef.sln in Visual Studio and select Build > Build Solution.
+#
+#   Using Ninja with Visual Studio 2019 command-line tools:
+#     (this path may be different depending on your Visual Studio installation)
+#     > "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars32.bat"
+#     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefclient cefsimple
+#
+# To perform a Windows build using a 64-bit CEF binary distribution:
+#   Using the Visual Studio 2019 IDE:
+#     > cmake -G "Visual Studio 16" -A x64 ..
+#     Open build\cef.sln in Visual Studio and select Build > Build Solution.
+#
+#   Using Ninja with Visual Studio 2019 command-line tools:
+#     (this path may be different depending on your Visual Studio installation)
+#     > "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
+#     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefclient cefsimple
+#
+# To perform a Windows build using an ARM64 CEF binary distribution:
+#   Using the Visual Studio 2019 IDE:
+#     > cmake -G "Visual Studio 16" -A arm64 ..
+#     Open build\cef.sln in Visual Studio and select Build > Build Solution.
+#
+#   Using Ninja with Visual Studio 2019 command-line tools:
+#     (this path may be different depending on your Visual Studio installation)
+#     > "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
+#     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefsimple
+
+#
+# Global setup.
 #
 
-# aviutl_browser sources.
-set(AVIUTLBROWSER_SRCS
-  miniz.c
-  assets.cc
-  assets.h
-  app.cc
-  app.h
-  client.cc
-  client.h
-  callback.h
-  depremultipliedalpha_table.h
-  picojson.h
-  version.h
-  )
-set(AVIUTLBROWSER_SRCS_LINUX
-  aviutl_browser_linux.cc
-  client_linux.cc
-  )
-set(AVIUTLBROWSER_SRCS_MACOSX
-  aviutl_browser_mac.mm
-  client_mac.mm
-  )
-set(AVIUTLBROWSER_SRCS_WINDOWS
-  aviutl_browser.exe.manifest
-  aviutl_browser.rc
-  aviutl_browser_win.cc
-  app_win.cc
-  client_win.cc
-  assets_win.cc
-  assets_win.h
-  path_win.cc
-  path_win.h
-  resource.h
-  report_win.cc
-  report_win.h
-  unicode_win.h
-  )
-APPEND_PLATFORM_SOURCES(AVIUTLBROWSER_SRCS)
-source_group(aviutl_browser FILES ${AVIUTLBROWSER_SRCS})
+# For VS2019 and Xcode 12+ support.
+cmake_minimum_required(VERSION 3.19)
 
-# aviutl_browser helper sources.
-set(AVIUTLBROWSER_HELPER_SRCS_MACOSX
-  process_helper_mac.cc
-  )
-APPEND_PLATFORM_SOURCES(AVIUTLBROWSER_HELPER_SRCS)
-source_group(aviutl_browser FILES ${AVIUTLBROWSER_HELPER_SRCS})
+# Only generate Debug and Release configuration types.
+set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
-# aviutl_browser resources.
-set(AVIUTLBROWSER_RESOURCES_MAC_SRCS_MACOSX
-  mac/Info.plist
-  mac/aviutl_browser.icns
-  )
-APPEND_PLATFORM_SOURCES(AVIUTLBROWSER_RESOURCES_MAC_SRCS)
-source_group(aviutl_browser\\\\mac FILES ${AVIUTLBROWSER_RESOURCES_MAC_SRCS})
+# Project name.
+# TODO: Change this line to match your project name when you copy this file.
+project(aviutl_browser)
 
-set(AVIUTLBROWSER_RESOURCES_MAC_ENGLISH_LPROJ_SRCS_MACOSX
-  mac/English.lproj/InfoPlist.strings
-  mac/English.lproj/MainMenu.xib
-  )
-APPEND_PLATFORM_SOURCES(AVIUTLBROWSER_RESOURCES_MAC_ENGLISH_LPROJ_SRCS)
-source_group(aviutl_browser\\\\mac\\\\English.lproj FILES ${AVIUTLBROWSER_RESOURCES_MAC_ENGLISH_LPROJ_SRCS})
-
-set(AVIUTLBROWSER_RESOURCES_SRCS
-  ${AVIUTLBROWSER_RESOURCES_MAC_SRCS}
-  ${AVIUTLBROWSER_RESOURCES_MAC_ENGLISH_LPROJ_SRCS}
-  )
+# Use folders in the resulting project files.
+set_property(GLOBAL PROPERTY OS_FOLDERS ON)
 
 
 #
-# Shared configuration.
-#
+# CEF_ROOT setup.
+# This variable must be set to locate the binary distribution.
 
-# Target executable names.
-set(CEF_TARGET "aviutl_browser")
-if(OS_MACOSX)
-  set(CEF_HELPER_TARGET "aviutl_browser_Helper")
-  set(CEF_HELPER_OUTPUT_NAME "aviutl_browser Helper")
-else()
-  # Logical target used to link the libcef library.
-  ADD_LOGICAL_TARGET("libcef_lib" "${CEF_LIB_DEBUG}" "${CEF_LIB_RELEASE}")
+set(CEF_URL  "https://cef-builds.spotifycdn.com/cef_binary_99.2.14%2Bg3f796b8%2Bchromium-99.0.4844.84_windows64_minimal.tar.bz2")
+set(CEF_ARCHIVE_PATH "${CMAKE_BINARY_DIR}/cef.tar.bz2")
+set(CEF_DIR "${CMAKE_BINARY_DIR}/cef")
+
+set(CEF_ROOT "${CEF_DIR}")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
+
+if(NOT EXISTS "${CEF_ARCHIVE_PATH}")
+  file(DOWNLOAD "${CEF_URL}" "${CEF_ARCHIVE_PATH}")
 endif()
 
-# Determine the target output directory.
-SET_CEF_TARGET_OUT_DIR()
-
-
-#
-# Linux configuration.
-#
-
-if(OS_LINUX)
-  # Executable target.
-  add_executable(${CEF_TARGET} ${AVIUTLBROWSER_SRCS})
-  SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
-  add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
-  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
-
-  # Set rpath so that libraries can be placed next to the executable.
-  set_target_properties(${CEF_TARGET} PROPERTIES INSTALL_RPATH "$ORIGIN")
-  set_target_properties(${CEF_TARGET} PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
-  set_target_properties(${CEF_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
-
-  # Copy binary and resource files to the target output directory.
-  COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
-  COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
-  if (EXISTS "${CEF_BINARY_DIR}/libminigbm.so")
-    COPY_FILES("${CEF_TARGET}" "libminigbm.so" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
-  endif()
-
-  # Set SUID permissions on the chrome-sandbox target.
-  SET_LINUX_SUID_PERMISSIONS("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/chrome-sandbox")
+if(NOT EXISTS "${CEF_DIR}")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvzf "${CEF_ARCHIVE_PATH}" WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+  file(GLOB old_dir LIST_DIRECTORIES true "${CMAKE_BINARY_DIR}/cef_binary_*")
+  file(RENAME "${old_dir}" "${CEF_DIR}")
 endif()
 
-
 #
-# Mac OS X configuration.
+# Load the CEF configuration.
 #
 
-if(OS_MACOSX)
-  option(OPTION_USE_ARC "Build with ARC (automatic Reference Counting) on macOS." ON)
-  if(OPTION_USE_ARC)
-    list(APPEND CEF_COMPILER_FLAGS
-      -fobjc-arc
-      )
-    set_target_properties(${target} PROPERTIES
-      CLANG_ENABLE_OBJC_ARC "YES"
-      )
-  endif()
-
-  # Output path for the main app bundle.
-  set(CEF_APP "${CEF_TARGET_OUT_DIR}/${CEF_TARGET}.app")
-
-  # Variables referenced from the main Info.plist file.
-  set(EXECUTABLE_NAME "${CEF_TARGET}")
-  set(PRODUCT_NAME "${CEF_TARGET}")
-
-  if(USE_SANDBOX)
-    # Logical target used to link the cef_sandbox library.
-    ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")
-  endif()
-
-  # Main app bundle target.
-  add_executable(${CEF_TARGET} MACOSX_BUNDLE ${AVIUTLBROWSER_RESOURCES_SRCS} ${AVIUTLBROWSER_SRCS})
-  SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
-  add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
-  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper ${CEF_STANDARD_LIBS})
-  set_target_properties(${CEF_TARGET} PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist
-    )
-
-  # Copy the CEF framework into the Frameworks directory.
-  add_custom_command(
-    TARGET ${CEF_TARGET}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CEF_BINARY_DIR}/Chromium Embedded Framework.framework"
-            "${CEF_APP}/Contents/Frameworks/Chromium Embedded Framework.framework"
-    VERBATIM
-    )
-
-  # Create the multiple Helper app bundle targets.
-  foreach(_suffix_list ${CEF_HELPER_APP_SUFFIXES})
-    # Convert to a list and extract the suffix values.
-    string(REPLACE ":" ";" _suffix_list ${_suffix_list})
-    list(GET _suffix_list 0 _name_suffix)
-    list(GET _suffix_list 1 _target_suffix)
-    list(GET _suffix_list 2 _plist_suffix)
-
-    # Define Helper target and output names.
-    set(_helper_target "${CEF_HELPER_TARGET}${_target_suffix}")
-    set(_helper_output_name "${CEF_HELPER_OUTPUT_NAME}${_name_suffix}")
-
-    # Create Helper-specific variants of the helper-Info.plist file. Do this
-    # manually because the configure_file command (which is executed as part of
-    # MACOSX_BUNDLE_INFO_PLIST) uses global env variables and would insert the
-    # wrong values with multiple targets.
-    set(_helper_info_plist "${CMAKE_CURRENT_BINARY_DIR}/helper-Info${_target_suffix}.plist")
-    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/mac/helper-Info.plist" _plist_contents)
-    string(REPLACE "\${EXECUTABLE_NAME}" "${_helper_output_name}" _plist_contents ${_plist_contents})
-    string(REPLACE "\${PRODUCT_NAME}" "${_helper_output_name}" _plist_contents ${_plist_contents})
-    string(REPLACE "\${BUNDLE_ID_SUFFIX}" "${_plist_suffix}" _plist_contents ${_plist_contents})
-    file(WRITE ${_helper_info_plist} ${_plist_contents})
-
-    # Create Helper executable target.
-    add_executable(${_helper_target} MACOSX_BUNDLE ${AVIUTLBROWSER_HELPER_SRCS})
-    SET_EXECUTABLE_TARGET_PROPERTIES(${_helper_target})
-    add_dependencies(${_helper_target} libcef_dll_wrapper)
-    target_link_libraries(${_helper_target} libcef_dll_wrapper ${CEF_STANDARD_LIBS})
-    set_target_properties(${_helper_target} PROPERTIES
-      MACOSX_BUNDLE_INFO_PLIST ${_helper_info_plist}
-      OUTPUT_NAME ${_helper_output_name}
-      )
-
-    if(USE_SANDBOX)
-      target_link_libraries(${_helper_target} cef_sandbox_lib)
-    endif()
-
-    # Add the Helper as a dependency of the main executable target.
-    add_dependencies(${CEF_TARGET} "${_helper_target}")
-
-    # Copy the Helper app bundle into the Frameworks directory.
-    add_custom_command(
-      TARGET ${CEF_TARGET}
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-              "${CEF_TARGET_OUT_DIR}/${_helper_output_name}.app"
-              "${CEF_APP}/Contents/Frameworks/${_helper_output_name}.app"
-      VERBATIM
-      )
-  endforeach()
-
-  # Manually process and copy over resource files.
-  # The Xcode generator can support this via the set_target_properties RESOURCE
-  # directive but that doesn't properly handle nested resource directories.
-  # Remove these prefixes from input file paths.
-  set(PREFIXES "mac/")
-  COPY_MACOSX_RESOURCES("${AVIUTLBROWSER_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
-endif()
+# Execute FindCEF.cmake which must exist in CMAKE_MODULE_PATH.
+find_package(CEF REQUIRED)
 
 
 #
-# Windows configuration.
+# Define CEF-based targets.
 #
 
-if(OS_WINDOWS)
-  # Executable target.
-  add_executable(${CEF_TARGET} WIN32 ${AVIUTLBROWSER_SRCS})
-  add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
-  SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
-  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+# Include the libcef_dll_wrapper target.
+# Comes from the libcef_dll/CMakeLists.txt file in the binary distribution
+# directory.
+add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
 
-  if(USE_SANDBOX)
-    # Logical target used to link the cef_sandbox library.
-    ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")
-    target_link_libraries(${CEF_TARGET} cef_sandbox_lib ${CEF_SANDBOX_STANDARD_LIBS})
-  endif()
+add_subdirectory(exe)
 
-  # Add the custom manifest files to the executable.
-  ADD_WINDOWS_MANIFEST("${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET}" "exe")
+# Display configuration settings.
+PRINT_CEF_CONFIG()
 
-  # Copy binary and resource files to the target output directory.
-  COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
-  COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
-endif()
-
-# Generate version.h
-
-find_package(Git REQUIRED)
-execute_process(
-  COMMAND ${GIT_EXECUTABLE} tag --points-at HEAD
-  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-  OUTPUT_VARIABLE git_tag
-  ERROR_QUIET
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-if ("${git_tag}" STREQUAL "")
-  set(git_tag "vX.X.X")
-endif()
-execute_process(
-  COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-  OUTPUT_VARIABLE git_revision
-  ERROR_QUIET
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-if ("${git_revision}" STREQUAL "")
-  set(git_revision "unknown")
-endif()
-add_custom_target(generate_version_h
-  COMMAND ${CMAKE_COMMAND}
-    -Dinput_file="${CMAKE_CURRENT_SOURCE_DIR}/version.h.in"
-    -Doutput_file="${CMAKE_CURRENT_BINARY_DIR}/version.h"
-    -Dnewline="LF"
-    -Dgit_tag="${git_tag}"
-    -Dgit_revision="${git_revision}"
-    -P "${CMAKE_CURRENT_SOURCE_DIR}/replace.cmake"
-)
-add_dependencies(${CEF_TARGET} generate_version_h)
-target_include_directories(${CEF_TARGET} PRIVATE
-  "${CMAKE_CURRENT_BINARY_DIR}" # for version.h
-)

@@ -1,0 +1,80 @@
+name: releaser
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+alpha[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+beta[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        shell: cmd
+        run: |
+          mkdir build
+          cd build
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake -G "Visual Studio 17" -A x64 -DCMAKE_BUILD_TYPE=Release  -DBUILD_EXE=1 ..
+          cmake --build . --config Release
+      - name: Upload binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: exe
+          path: |
+            build/src/exe/Release/*
+  create-release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+      - name: Build package
+        run: |
+          mkdir build
+          cd build
+          cmake -DBUILD_PACKAGE=1 ..
+          cmake --build . --target copy_script
+      - name: Copy binary
+        run: |
+          rm exe/aviutl_browser.exp
+          rm exe/aviutl_browser.lib
+          mv exe build/bin/script/browser/
+      - name: Zip
+        run: cd build/bin && zip -r ../../${{ steps.get_version.outputs.tag }}.zip *
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: true
+          prerelease: false
+          body: |
+            ### ダウンロード
+            
+            - [aviutl_browser_${{ steps.get_version.outputs.tag }}.zip](https://github.com/oov/aviutl_browser/releases/download/${{ steps.get_version.outputs.tag }}/aviutl_browser_${{ steps.get_version.outputs.tag }}.zip)
+            
+            ### 変更点
+            
+            - ＊＊＊＊
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.get_version.outputs.tag }}.zip
+          asset_name: aviutl_browser_${{ steps.get_version.outputs.tag }}.zip
+          asset_content_type: application/zip

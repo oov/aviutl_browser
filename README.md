@@ -1,7 +1,7 @@
 # aviutl_browser
 
 AviUtl の拡張編集プラグイン上でブラウザーの表示内容を持ち込めるようにするためのプログラムです。  
-使用には bridge.dll ( https://twitter.com/oovch/status/1161359705723195392 ) の導入が必要です。
+使用には bridge.dll ( https://github.com/oov/aviutl_bridge ) の導入が必要です。
 
 ## 注意事項
 
@@ -9,6 +9,10 @@ aviutl_browser は無保証で提供されます。
 aviutl_browser を使用したこと及び使用しなかったことによるいかなる損害について、開発者は一切の責任を負いません。
 
 これに同意できない場合、あなたは aviutl_browser を使用することができません。  
+
+## ダウンロード
+
+https://github.com/oov/aviutl_browser/releases
 
 ## インストール方法
 

@@ -328,7 +328,7 @@ void Client::SetUseDevTools(const bool use_devtools) {
 
 bool Client::RenderAndCapture(const std::wstring& inbuf, std::wstring& outbuf, void* image, const int width, const int height) {
 	Resize(width, height);
-	const bool r = Render(inbuf, outbuf, 30000);
+	Render(inbuf, outbuf, 30000);
 	Capture(image, width, height);
 	return true;
 }
