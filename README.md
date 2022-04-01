@@ -142,8 +142,7 @@ JavaScript で `AviUtlBrowser.registerRenderer(render)` などとして関数を
 
 ## Credits
 
-aviutl_browser is made possible by the following open source softwares.  
-See also lua/contents/CREDITS.md for content files open source credit list.
+aviutl_browser is made possible by the following open source softwares.
 
 ### Chromium Embedded Framework
 
