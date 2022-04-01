@@ -42,10 +42,6 @@ set(AVIUTLBROWSER_SRCS_WINDOWS
 APPEND_PLATFORM_SOURCES(AVIUTLBROWSER_SRCS)
 source_group(aviutl_browser FILES ${AVIUTLBROWSER_SRCS})
 
-set(CEFSIMPLE_SRCS
-  ${CEFSIMPLE_SRCS}
-  )
-
 # aviutl_browser helper sources.
 set(AVIUTLBROWSER_HELPER_SRCS_MACOSX
   process_helper_mac.cc
@@ -250,3 +246,40 @@ if(OS_WINDOWS)
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
   COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
 endif()
+
+# Generate version.h
+
+find_package(Git REQUIRED)
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} tag --points-at HEAD
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+  OUTPUT_VARIABLE git_tag
+  ERROR_QUIET
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if ("${git_tag}" STREQUAL "")
+  set(git_tag "vX.X.X")
+endif()
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+  OUTPUT_VARIABLE git_revision
+  ERROR_QUIET
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if ("${git_revision}" STREQUAL "")
+  set(git_revision "unknown")
+endif()
+add_custom_target(generate_version_h
+  COMMAND ${CMAKE_COMMAND}
+    -Dinput_file="${CMAKE_CURRENT_SOURCE_DIR}/version.h.in"
+    -Doutput_file="${CMAKE_CURRENT_BINARY_DIR}/version.h"
+    -Dnewline="LF"
+    -Dgit_tag="${git_tag}"
+    -Dgit_revision="${git_revision}"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/replace.cmake"
+)
+add_dependencies(${CEF_TARGET} generate_version_h)
+target_include_directories(${CEF_TARGET} PRIVATE
+  "${CMAKE_CURRENT_BINARY_DIR}" # for version.h
+)

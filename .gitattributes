@@ -3,5 +3,4 @@ README.md                   text eol=crlf
 *.anm                       text eol=crlf
 *.obj                       text eol=crlf
 *.exa                       text eol=crlf
-LICENSES.chromium.html      text eol=crlf
 src/lua/contents/CREDITS.md text eol=crlf

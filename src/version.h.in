@@ -1,0 +1,2 @@
+#pragma once
+constexpr const wchar_t *version = L"@git_tag@ ( @git_revision@ )";

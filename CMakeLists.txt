@@ -150,7 +150,7 @@ set_property(GLOBAL PROPERTY OS_FOLDERS ON)
 # CEF_ROOT setup.
 # This variable must be set to locate the binary distribution.
 
-set(CEF_URL  "https://cef-builds.spotifycdn.com/cef_binary_99.2.13%2Bgd9af866%2Bchromium-99.0.4844.83_windows64_minimal.tar.bz2")
+set(CEF_URL  "https://cef-builds.spotifycdn.com/cef_binary_99.2.14%2Bg3f796b8%2Bchromium-99.0.4844.84_windows64_minimal.tar.bz2")
 set(CEF_ARCHIVE_PATH "${CMAKE_BINARY_DIR}/cef.tar.bz2")
 set(CEF_DIR "${CMAKE_BINARY_DIR}/cef")
 
@@ -167,32 +167,36 @@ if(NOT EXISTS "${CEF_DIR}")
   file(RENAME "${old_dir}" "${CEF_DIR}")
 endif()
 
-# Generate version.h
+set(EMOJI_VERSION "v0.0.2")
+set(EMOJI_URL "https://github.com/oov/aviutl_browser_emoji/releases/download/${EMOJI_VERSION}/aviutl_browser_emoji_${EMOJI_VERSION}.zip")
+set(EMOJI_PATH "${CMAKE_CURRENT_BINARY_DIR}/emoji.zip")
+set(EMOJI_DIR "${CMAKE_CURRENT_BINARY_DIR}/emoji")
+if(NOT EXISTS "${EMOJI_PATH}")
+  file(DOWNLOAD "${EMOJI_URL}" "${EMOJI_PATH}")
+endif()
+if(NOT EXISTS "${EMOJI_DIR}")
+  file(MAKE_DIRECTORY "${EMOJI_DIR}")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvzf "${EMOJI_PATH}" WORKING_DIRECTORY "${EMOJI_DIR}")
+endif()
 
-find_package(Git REQUIRED)
-execute_process(
-  COMMAND ${GIT_EXECUTABLE} tag --points-at HEAD
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-  OUTPUT_VARIABLE git_tag
-  ERROR_QUIET
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-if ("${git_tag}" STREQUAL "")
-  set(git_tag "vX.X.X")
+set(MARKDOWN_VERSION "v0.0.3")
+set(MARKDOWN_URL "https://github.com/oov/aviutl_browser_markdown/releases/download/${MARKDOWN_VERSION}/aviutl_browser_markdown_${MARKDOWN_VERSION}.zip")
+set(MARKDOWN_PATH "${CMAKE_CURRENT_BINARY_DIR}/markdown.zip")
+set(MARKDOWN_DIR "${CMAKE_CURRENT_BINARY_DIR}/markdown")
+if(NOT EXISTS "${MARKDOWN_PATH}")
+  file(DOWNLOAD "${MARKDOWN_URL}" "${MARKDOWN_PATH}")
 endif()
-execute_process(
-  COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-  OUTPUT_VARIABLE git_revision
-  ERROR_QUIET
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-if ("${git_revision}" STREQUAL "")
-  set(git_revision "unknown")
+if(NOT EXISTS "${MARKDOWN_DIR}")
+  file(MAKE_DIRECTORY "${MARKDOWN_DIR}")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvzf "${MARKDOWN_PATH}" WORKING_DIRECTORY "${MARKDOWN_DIR}")
 endif()
-file(WRITE
-  "${CMAKE_SOURCE_DIR}/src/version.h"
-  "#pragma once\nconstexpr const wchar_t *version = L\"${git_tag} ( ${git_revision} )\";\n"
+
+add_custom_target(copy_script
+  COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/README.md" "${PROJECT_BINARY_DIR}/bin/aviutl_browser.txt"
+  COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/LICENSES.chromium.html" "${PROJECT_BINARY_DIR}/bin/LICENSES.chromium.html"
+  COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/src/lua/browser.lua" "${PROJECT_BINARY_DIR}/bin/script/browser/browser.lua"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "${EMOJI_DIR}" "${PROJECT_BINARY_DIR}/bin"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "${MARKDOWN_DIR}" "${PROJECT_BINARY_DIR}/bin"
 )
 
 #

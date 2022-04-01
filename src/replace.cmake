@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.0.0)
+if("${newline}" STREQUAL "")
+  set(newline "CRLF")
+endif()
+configure_file(${input_file} ${output_file} @ONLY NEWLINE_STYLE ${newline})

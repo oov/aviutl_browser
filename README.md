@@ -22,12 +22,13 @@ bridge.dll も必要になるので忘れずにインストールしておいて
 
 やることの大筋は以下の2ステップです。
 
-作例として `絵文字` / `glTF表示デモ` / `ファイル参照デモ` / `SVGアニメ` / `Markdown` も付属しているので参考にしてください。
+作例として `絵文字` / `Markdown` も付属しているので参考にしてください。
 
 ### 1. カスタムオブジェクト用のスクリプトを作成する
 
 カスタムオブジェクト用のスクリプトである `*.obj` を `browser` フォルダー内に作成します。  
-このスクリプトからブラウザーを呼び出すことになります。
+このスクリプトからブラウザーを呼び出すことになります。  
+（最終的にスクリプトが実行できればいいので、呼び出し元はアニメーション効果などでも構いません）
 
 ```lua
 -- ブラウザーの表示内容を受け取るために透明の画像を用意する
@@ -39,7 +40,7 @@ local ok, ret = require("browser").execute({
   dir = "mycontent", -- contents フォルダー内のフォルダー名を指定する
   tabid = "", -- 同じコンテンツをブラウザーの別タブで開く場合は識別用の文字列を指定する、必要なければ省略可
   param = "文字列をJavaScriptに渡せます", -- 必要なければ省略可
-  userfile = file, -- ファイル参照ダイアログを使う場合（ファイル参照デモ.objに使用例あり）
+  userfile = file, -- ファイル参照ダイアログを使う場合
   dev = false, -- 開発モードを有効にする場合は true
 });
 
@@ -48,7 +49,7 @@ local ok, ret = require("browser").execute({
   abc = "mycontent.abc", -- contents フォルダー内のファイル名を指定する
   tabid = "", -- 同じコンテンツをブラウザーの別タブで開く場合は識別用の文字列を指定する、必要なければ省略可
   param = "文字列をJavaScriptに渡せます", -- 必要なければ省略可
-  userfile = file, -- ファイル参照ダイアログを使う場合（ファイル参照デモ.objに使用例あり）
+  userfile = file, -- ファイル参照ダイアログを使う場合
   dev = false, -- 開発モードを有効にする場合は true
 });
 
@@ -68,11 +69,11 @@ local ok, ret = require("browser").execute({
 ### 2. ブラウザーで表示するコンテンツを `browser\contents` フォルダー内に作成する
 
 コンテンツのデータ準備方法には、フォルダーを指定する方法と、abc ファイルを指定する方法の２つがあります。  
-付属コンテンツではすべて abc ファイルを指定する方法が使われています。
+付属コンテンツでは abc ファイルを指定する方法が使われています。
 
 abc ファイルの実態は「表示用データを詰め込んだ zip ファイルを作成し、拡張子を変更しただけ」のファイルです。  
-そのため「glTF表示デモ.abc」なども拡張子を zip に書き換えることで中身を展開できます。  
-コンテンツの利用者がファイルの中身を気にしなくてもいい場合は abc ファイルを使うとファイルが散らばりません。
+コンテンツの利用者がファイルの中身を気にしなくてもいい場合は abc ファイルを使うとファイルが散らばりません。  
+逆に、適宜 HTML などに手を入れながら使うような使われ方を想定する場合はフォルダー指定のほうが適しています。
 
 ブラウザーが起動されると、フォルダーや abc ファイルのルートにある `index.html` が読み込まれます。  
 JavaScript で `AviUtlBrowser.registerRenderer(render)` などとして関数を登録しておくと、`render` 関数が毎回の描画時に呼び出されるようになります。  
@@ -83,22 +84,13 @@ JavaScript で `AviUtlBrowser.registerRenderer(render)` などとして関数を
 <meta charset="utf-8">
 <p>Hello world <span></span>!</p>
 <script>
-  // 描画されるたびに呼び出される関数
-  // 戻り値は必ず Promise を返す
-  // （なので async function も使える）
+  // 描画されるたびに呼び出される非同期関数を登録する
   // params.param には前のステップの Lua スクリプト内で渡した「文字列をJavaScriptに渡せます」が入っている
-  function render(params) {
-    return new Promise(resolve => {
-      // param の内容を画面に反映
-      const elem = document.querySelector("span");
-      elem.textContent = params.param;
-      // 画面の準備ができたら resolve を呼ぶ
-      // Lua 側に返したいデータがあれば文字列を渡す
-      resolve('');
-    });
-  }
-  // 呼び出してもらえるように関数を登録する
-  AviUtlBrowser.registerRenderer(render);
+  AviUtlBrowser.registerRenderer(async params => {
+    // param の内容を画面に反映
+    document.querySelector("span").textContent = params.param;
+    return ''; // もし Lua 側に返したいデータがあるなら文字列で渡す
+  });
 </script>
 ```
 
@@ -115,6 +107,10 @@ JavaScript で `AviUtlBrowser.registerRenderer(render)` などとして関数を
   - 例えば「岡崎市立中央図書館事件」では1秒に1回のアクセスで逮捕されています
 - abc ファイルを作るときはフォルダーごと圧縮しないこと
   - zip ファイルのルートにはフォルダーではなく index.html が来るようにしてください
+- ファイル参照ボタンも使えます
+  - Lua 側から `userfile = file` で渡すと、HTML 側で `/userfile` で受け取ることができます
+  - 使用例: https://gist.github.com/oov/40ac2545d70527f5f2af69b7fa02a1fe
+  - 今のところ複数のファイルを渡す仕組みは想定されていません
 
 ## FAQ
 
