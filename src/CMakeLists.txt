@@ -150,7 +150,7 @@ set_property(GLOBAL PROPERTY OS_FOLDERS ON)
 # CEF_ROOT setup.
 # This variable must be set to locate the binary distribution.
 
-set(CEF_URL  "https://cef-builds.spotifycdn.com/cef_binary_99.2.14%2Bg3f796b8%2Bchromium-99.0.4844.84_windows64_minimal.tar.bz2")
+set(CEF_URL  "https://cef-builds.spotifycdn.com/cef_binary_99.2.15%2Bg71e9523%2Bchromium-99.0.4844.84_windows64_minimal.tar.bz2")
 set(CEF_ARCHIVE_PATH "${CMAKE_BINARY_DIR}/cef.tar.bz2")
 set(CEF_DIR "${CMAKE_BINARY_DIR}/cef")
 
