@@ -137,7 +137,7 @@ JavaScript で `AviUtlBrowser.registerRenderer(render)` などとして関数を
 
 ## ビルドについて
 
-リリース用ファイルは GitHub Actions で自動生成しています。
+リリース用ファイルは GitHub Actions で自動生成しています。  
 ビルド方法や必要になるパッケージなどは [GitHub Actions の設定ファイル](https://github.com/oov/aviutl_browser/blob/main/.github/workflows/releaser.yml) を参照してください。
 
 ## Credits
