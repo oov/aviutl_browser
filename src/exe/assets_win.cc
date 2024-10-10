@@ -49,7 +49,7 @@ CefRefPtr<CefResourceHandler> AssetsFromLocalFile::Get(const CefString& path) {
 bool AssetsFromLocalFile::SetBasePath(const CefString& base_path) {
 	WCHAR tmp[MAX_PATH + 16] = {};
 	DWORD len = MAX_PATH + 16;
-	HRESULT hr = UrlCreateFromPathW(base_path.c_str(), tmp, &len, 0);
+	HRESULT hr = UrlCreateFromPathW(reinterpret_cast<PCWSTR>(base_path.c_str()), tmp, &len, 0);
 	if (FAILED(hr)) {
 		report(hr, L"UrlCreateFromPathW failed");
 		return false;
@@ -84,7 +84,7 @@ size_t AssetsFromZip::read(void* pOpaque, mz_uint64 file_ofs, void* pBuf, size_t
 
 bool AssetsFromZip::SetSourceZip(const CefString& zip_path) {
 	LARGE_INTEGER sz = {};
-	file_ = CreateFile(zip_path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	file_ = CreateFileW(reinterpret_cast<PCWSTR>(zip_path.c_str()), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (file_ == INVALID_HANDLE_VALUE) {
 		report(HRESULT_FROM_WIN32(GetLastError()), L"CreateFile failed");
 		return false;
@@ -122,7 +122,7 @@ CefRefPtr<CefResourceHandler> AssetsFromZip::Get(const CefString& path) {
 	}
 	std::string u8path;
 	{
-		const HRESULT hr = to_u8(path.c_str(), static_cast<const int>(path.size()), u8path);
+		const HRESULT hr = to_u8(reinterpret_cast<PCWSTR>(path.c_str()), static_cast<const int>(path.size()), u8path);
 		if (FAILED(hr)) {
 			return StreamResourceHandler::CreateError(500, L"failed to encode filename to utf-8");
 		}

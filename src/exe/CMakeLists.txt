@@ -14,7 +14,6 @@ set(AVIUTLBROWSER_SRCS
   callback.h
   depremultipliedalpha_table.h
   picojson.h
-  version.h
   )
 set(AVIUTLBROWSER_SRCS_LINUX
   aviutl_browser_linux.cc

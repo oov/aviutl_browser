@@ -209,7 +209,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
 		CefSettings settings;
 		settings.windowless_rendering_enabled = true;
-		settings.persist_user_preferences = true;
 
 		std::wstring cache;
 		if (!create_cache_dir(cache)) {

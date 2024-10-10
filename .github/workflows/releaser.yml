@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake -G "Visual Studio 17" -A x64 -DCMAKE_BUILD_TYPE=Release  -DBUILD_EXE=1 ..
           cmake --build . --config Release
       - name: Upload binaries
