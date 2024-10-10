@@ -12,17 +12,17 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         shell: cmd
         run: |
           mkdir build
           cd build
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake -G "Visual Studio 17" -A x64 -DCMAKE_BUILD_TYPE=Release  -DBUILD_EXE=1 ..
           cmake --build . --config Release
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: exe
           path: |
@@ -34,9 +34,9 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
       - name: Build package
         run: |
           mkdir build
@@ -49,17 +49,15 @@ jobs:
           rm exe/aviutl_browser.lib
           mv exe build/bin/script/browser/
       - name: Zip
-        run: cd build/bin && zip -r ../../${{ steps.get_version.outputs.tag }}.zip *
+        run: mkdir -p dist && cd build/bin && zip -r ../../dist/aviutl_browser_${{ steps.get_version.outputs.tag }}.zip *
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: ${{ steps.get_version.outputs.tag }}
           draft: true
           prerelease: false
+          files: dist/*
           body: |
             ### ダウンロード
             
@@ -68,13 +66,3 @@ jobs:
             ### 変更点
             
             - ＊＊＊＊
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.get_version.outputs.tag }}.zip
-          asset_name: aviutl_browser_${{ steps.get_version.outputs.tag }}.zip
-          asset_content_type: application/zip
